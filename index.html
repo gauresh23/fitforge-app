@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#1d5f4b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>FitForge: Workout, Diet, Hair Plan</title>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --muted: #334155;
+            --cream: #f8f6f1;
+            --panel: #ffffff;
+            --line: #d8d5cc;
+            --brand: #1d5f4b;
+            --brand-2: #2a7a61;
+            --accent: #d97706;
+            --danger: #b91c1c;
+            --ok: #166534;
+            --radius: 14px;
+            --shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background:
+                radial-gradient(circle at 85% -10%, #d7f5ea 0%, transparent 45%),
+                radial-gradient(circle at 0% 100%, #ffe8c9 0%, transparent 50%),
+                var(--cream);
+            color: var(--ink);
+            font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: Georgia, "Times New Roman", serif;
+            letter-spacing: 0.2px;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .app {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 12px 14px calc(22px + env(safe-area-inset-bottom));
+        }
+
+        .top {
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            color: #f9fafb;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .top p {
+            margin: 0.45rem 0;
+            color: #e6fff5;
+        }
+
+        .kpi-grid {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .kpi {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 10px;
+            padding: 9px;
+        }
+
+        .kpi small { color: #dcfce7; }
+        .kpi strong { display: block; font-size: 1.05rem; }
+
+        .tabbar {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .tab {
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 8px 6px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: var(--ink);
+            color: #fff;
+            border-color: var(--ink);
+        }
+
+        .panel {
+            display: none;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 14px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.35s ease;
+        }
+
+        .panel.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .card {
+            background: #fffdfa;
+            border: 1px solid #ece8de;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .card h3 { margin-bottom: 8px; }
+
+        .muted { color: var(--muted); }
+
+        .pill {
+            display: inline-block;
+            background: #ecfdf5;
+            color: var(--ok);
+            border: 1px solid #a7f3d0;
+            border-radius: 999px;
+            padding: 3px 8px;
+            font-size: 0.78rem;
+            margin: 0 6px 6px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border-bottom: 1px solid #ece8de;
+            text-align: left;
+            padding: 8px 6px;
+            vertical-align: top;
+        }
+
+        .table-wrap {
+            overflow: auto;
+            border: 1px solid #ece8de;
+            border-radius: 10px;
+            margin-top: 8px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 8px 0;
+        }
+
+        button, .btn {
+            border: 1px solid transparent;
+            background: var(--brand);
+            color: white;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button.secondary, .btn.secondary {
+            background: #fff;
+            color: var(--ink);
+            border-color: var(--line);
+        }
+
+        button.warn { background: var(--accent); }
+        button.danger { background: var(--danger); }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #c9c5bb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: #fff;
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
+
+        .field label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .workout-head {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .timing {
+            color: var(--ok);
+            font-weight: 700;
+        }
+
+        .exercise-item {
+            border: 1px solid #ece8de;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #fff;
+        }
+
+        .exercise-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 8px;
+        }
+
+        .exercise-controls {
+            margin-top: 8px;
+            display: grid;
+            grid-template-columns: 100px 100px 1fr;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .links a {
+            color: #075985;
+            font-weight: 700;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .links a:hover { text-decoration: underline; }
+
+        .small { font-size: 0.82rem; }
+        .danger-note {
+            color: #7f1d1d;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .ok-note {
+            color: #14532d;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .runtime-note {
+            margin: 10px 0;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.9rem;
+            border: 1px solid #bbf7d0;
+            background: #f0fdf4;
+            color: #14532d;
+        }
+
+        .runtime-note.warn {
+            border-color: #fecaca;
+            background: #fef2f2;
+            color: #7f1d1d;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: var(--muted);
+            padding: 14px 0 4px;
+            font-size: 0.84rem;
+        }
+
+        canvas {
+            width: 100%;
+            max-height: 230px;
+            border: 1px solid #ece8de;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        @media (max-width: 930px) {
+            .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .row { grid-template-columns: 1fr; }
+            .tabbar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 600px) {
+            .app { padding: 10px; }
+            .tab { font-size: 0.82rem; padding: 9px 5px; }
+            .exercise-controls { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <noscript>
+            <div class="runtime-note warn">JavaScript is blocked in this viewer. Open this file in Safari browser to use the app.</div>
+        </noscript>
+        <div id="runtimeStatus" class="runtime-note" style="display:none"></div>
+        <header class="top">
+            <h1>FitForge 24-Week Definition System</h1>
+            <p>Goal: Build a tighter waist, athletic definition, better endurance, and stronger recovery while preserving muscle.</p>
+            <p class="small">Profile baseline: Male, 40, 181 cm, about 200 lb, strength training background, vegetarian with dairy.</p>
+            <div class="kpi-grid">
+                <div class="kpi"><small>Target calories</small><strong id="kpiCalories">2,300 kcal</strong></div>
+                <div class="kpi"><small>Protein</small><strong id="kpiProtein">180 g/day</strong></div>
+                <div class="kpi"><small>Daily steps</small><strong>8,000 to 10,000</strong></div>
+                <div class="kpi"><small>Training split</small><strong>5 days + recovery</strong></div>
+            </div>
+        </header>
+
+        <nav class="tabbar" id="tabbar">
+            <button class="tab active" data-panel="home">Home</button>
+            <button class="tab" data-panel="workout">Workout</button>
+            <button class="tab" data-panel="diet">Diet</button>
+            <button class="tab" data-panel="recovery">Recovery</button>
+            <button class="tab" data-panel="hair">Hair</button>
+            <button class="tab" data-panel="progress">Progress</button>
+        </nav>
+
+        <section class="panel active" id="panel-home">
+            <div class="section-title">
+                <h2>Daily Execution</h2>
+                <div class="actions">
+                    <button id="startTodayBtn">Start Today's Workout</button>
+                    <button id="openDietBtn" class="secondary">Open Today's Diet</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="card">
+                    <h3>Today Checklist</h3>
+                    <div class="field"><label><input type="checkbox" id="chkHydration"> Hydration: 3.0 to 3.5 liters</label></div>
+                    <div class="field"><label><input type="checkbox" id="chkProtein"> Hit 180 g protein</label></div>
+                    <div class="field"><label><input type="checkbox" id="chkSteps"> Hit step goal</label></div>
+                    <div class="field"><label><input type="checkbox" id="chkMobility"> 15 minute mobility flow</label></div>
+                    <div class="field"><label><input type="checkbox" id="chkHair"> Hair routine completed</label></div>
+                    <button id="saveChecklist" class="warn">Save Checklist</button>
+                    <p class="muted small" id="checklistSaved"></p>
+                </div>
+                <div class="card">
+                    <h3>Program Roadmap (6 months)</h3>
+                    <p><span class="pill">Weeks 1-8: Base Hypertrophy + Technique</span></p>
+                    <p><span class="pill">Weeks 9-16: Strength + Lean Gain</span></p>
+                    <p><span class="pill">Weeks 17-24: Definition + Conditioning</span></p>
+                    <p class="muted">Deload every 5th week: reduce sets by 35% and use lighter loads. Keep form strict.</p>
+                    <div class="danger-note small">Medical note: this app is educational, not a diagnosis or replacement for your physician/dermatologist.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-workout">
+            <div class="section-title">
+                <h2>Workout Planner and Logger</h2>
+                <div class="actions">
+                    <select id="dayPicker"></select>
+                    <button id="loadDayBtn" class="secondary">Load Day</button>
+                </div>
+            </div>
+            <div class="workout-head" id="workoutSummary"></div>
+            <div id="exerciseList"></div>
+            <div class="field">
+                <label for="workoutNotes">Session notes (energy, pain, sleep, stress)</label>
+                <textarea id="workoutNotes" rows="3" placeholder="Example: left shoulder tight on overhead press, reduced load by 10 lb."></textarea>
+            </div>
+            <div class="actions">
+                <button id="saveWorkoutBtn">Save Session</button>
+                <button id="clearWorkoutBtn" class="danger">Reset Inputs</button>
+            </div>
+            <p class="muted" id="workoutSavedMsg"></p>
+            <div class="table-wrap">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Workout time</th>
+                            <th>Total volume</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-diet">
+            <h2>Indian Vegetarian Diet Plan (US units)</h2>
+            <p class="muted">Calorie target starts around 2,300 kcal/day. Adjust every 2 weeks based on waist and scale trend.</p>
+            <div class="row">
+                <div class="card">
+                    <h3>Daily Meal Structure</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Time</th><th>Meal</th><th>Target</th></tr></thead>
+                            <tbody>
+                                <tr><td>6:30 AM</td><td>Water + pinch salt + lemon, black coffee or tea</td><td>Hydration and alertness</td></tr>
+                                <tr><td>7:30 AM</td><td>Breakfast: 1.5 cups Greek yogurt or 1 scoop whey + 1 cup oats + 1 banana + 1 tbsp chia/flax</td><td>45 g protein</td></tr>
+                                <tr><td>10:30 AM</td><td>Snack: 1 cup paneer cubes or roasted chana + fruit</td><td>25 g protein</td></tr>
+                                <tr><td>1:30 PM</td><td>Lunch: 2 medium rotis, 1.5 cups dal, 1 cup sabzi, salad, 0.5 cup curd</td><td>40 g protein</td></tr>
+                                <tr><td>5:00 PM</td><td>Pre-workout: 1 banana + 1 cup buttermilk + 1 tbsp peanut butter</td><td>Fuel training</td></tr>
+                                <tr><td>7:30 PM</td><td>Post-workout: 1 scoop whey in milk or water + 1 fruit</td><td>30 g protein</td></tr>
+                                <tr><td>9:00 PM</td><td>Dinner: 1 cup tofu/paneer bhurji + 1 cup quinoa/rice + cooked vegetables</td><td>35 g protein</td></tr>
+                                <tr><td>10:30 PM</td><td>Before bed: 1 cup milk + turmeric or 0.5 cup Greek yogurt</td><td>15 g protein</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="small muted">Swap options: moong chilla, soy chunks, low-fat paneer, tofu, lentil pasta, skyr, kefir.</p>
+                </div>
+                <div class="card">
+                    <h3>Macro and Adjustment Rules</h3>
+                    <p><span class="pill">Protein: 180 g/day</span><span class="pill">Carbs: 220 to 250 g/day</span><span class="pill">Fat: 65 to 75 g/day</span></p>
+                    <ul>
+                        <li>If body weight does not drop 0.5 to 1.0 lb/week for 2 weeks, reduce carbs by 25 g/day.</li>
+                        <li>If strength drops hard for more than 1 week, add 20 to 30 g carbs around workout.</li>
+                        <li>One refeed day every 10 to 14 days: increase carbs by 60 to 80 g, keep fat lower.</li>
+                        <li>Fiber target: 30 to 40 g/day from vegetables, fruit, legumes, oats, seeds.</li>
+                    </ul>
+                    <h4>Supplements (discuss with your doctor)</h4>
+                    <ul>
+                        <li>Creatine monohydrate 3 to 5 g/day</li>
+                        <li>Vitamin D3 (dose by blood test)</li>
+                        <li>B12 for vegetarian diet</li>
+                        <li>Algae omega-3 (EPA+DHA)</li>
+                        <li>Magnesium glycinate before sleep if needed</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-recovery">
+            <h2>Yoga, Mobility, and Rehab</h2>
+            <div class="row">
+                <div class="card">
+                    <h3>15 Minute Daily Mobility Flow</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Block</th><th>Exercise</th><th>Duration</th><th>Link</th></tr></thead>
+                            <tbody>
+                                <tr><td>Neck and T-spine</td><td>Cat-cow + thread the needle</td><td>3 min</td><td class="links"><a href="https://www.youtube.com/results?search_query=cat+cow+thread+the+needle+mobility" target="_blank" rel="noopener noreferrer">YouTube</a></td></tr>
+                                <tr><td>Shoulders</td><td>Wall slides + band external rotation</td><td>3 min</td><td class="links"><a href="https://www.youtube.com/results?search_query=wall+slides+band+external+rotation+rotator+cuff" target="_blank" rel="noopener noreferrer">YouTube</a></td></tr>
+                                <tr><td>Hips</td><td>90/90 switches + hip flexor stretch</td><td>4 min</td><td class="links"><a href="https://www.youtube.com/results?search_query=90+90+hip+switch+mobility+hip+flexor+stretch" target="_blank" rel="noopener noreferrer">YouTube</a></td></tr>
+                                <tr><td>Ankles and hamstrings</td><td>Knee to wall ankle drill + RDL stretch</td><td>3 min</td><td class="links"><a href="https://www.youtube.com/results?search_query=knee+to+wall+ankle+mobility+hamstring+stretch" target="_blank" rel="noopener noreferrer">YouTube</a></td></tr>
+                                <tr><td>Core and breath</td><td>Dead bug + diaphragmatic breathing</td><td>2 min</td><td class="links"><a href="https://www.youtube.com/results?search_query=dead+bug+core+diaphragmatic+breathing" target="_blank" rel="noopener noreferrer">YouTube</a></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Weekly Conditioning and Recovery</h3>
+                    <ul>
+                        <li>Zone 2 cardio twice weekly: 30 to 40 minutes brisk incline walk or cycling.</li>
+                        <li>One short interval day: 8 rounds of 30 sec hard, 90 sec easy.</li>
+                        <li>Yoga session once weekly: 25 to 35 minutes.</li>
+                        <li>Sleep target: 7.5 to 8.5 hours.</li>
+                        <li>Desk reset each hour: 2 to 3 minutes walk + chest opener.</li>
+                    </ul>
+                    <div class="ok-note small">Shoulder rehab progression: if pain is above 4/10, reduce load, use neutral-grip pressing and extra cuff work.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-hair">
+            <h2>Natural Hair Support Routine (No Finasteride/Minoxidil)</h2>
+            <p class="muted">Evidence for natural regrowth is modest. Aim for slowing loss, improving scalp health, and fixing deficiencies.</p>
+            <div class="row">
+                <div class="card">
+                    <h3>Daily and Weekly Routine</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Frequency</th><th>Action</th><th>Practical details</th></tr></thead>
+                            <tbody>
+                                <tr><td>Daily</td><td>Protein, micronutrients, scalp hygiene</td><td>Hit protein target, avoid very low calorie crash diets.</td></tr>
+                                <tr><td>Daily</td><td>5 minute scalp massage</td><td>Light pressure, no aggressive rubbing.</td></tr>
+                                <tr><td>3x per week</td><td>Rosemary oil diluted in carrier oil</td><td>1 to 2% dilution, patch test first, wash after 2 to 4 hours.</td></tr>
+                                <tr><td>Weekly</td><td>Microneedling if tolerated</td><td>0.5 mm once weekly can be continued; sanitize device and avoid overuse.</td></tr>
+                                <tr><td>Monthly</td><td>Photo tracking</td><td>Same lighting, same angle, crown and mid-scalp pictures.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Medical Checks to Request</h3>
+                    <ul>
+                        <li>CBC, ferritin, iron panel</li>
+                        <li>Vitamin D, B12, zinc</li>
+                        <li>TSH, free T3, free T4</li>
+                        <li>HbA1c and fasting insulin if needed</li>
+                    </ul>
+                    <p class="muted">If crown and mid-scalp continue to thin after 4 to 6 months despite routine and corrected labs, dermatology review is strongly recommended.</p>
+                    <div class="danger-note small">No natural method matches finasteride/minoxidil efficacy in most studies, so set realistic expectations and monitor objectively.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-progress">
+            <h2>Progress Analytics</h2>
+            <div class="row">
+                <div class="card">
+                    <h3>Body Metrics</h3>
+                    <div class="field"><label for="bwInput">Body weight (lb)</label><input id="bwInput" type="number" step="0.1" placeholder="200"></div>
+                    <div class="field"><label for="waistInput">Waist at navel (inches)</label><input id="waistInput" type="number" step="0.1" placeholder="36"></div>
+                    <div class="field"><label for="sleepInput">Average sleep (hours)</label><input id="sleepInput" type="number" step="0.1" placeholder="7.2"></div>
+                    <div class="actions">
+                        <button id="saveMetricsBtn">Save Metrics</button>
+                    </div>
+                    <p class="muted" id="metricsSaved"></p>
+                    <div class="table-wrap">
+                        <table id="metricsTable">
+                            <thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th>Sleep</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Training Volume Trend (last 12 sessions)</h3>
+                    <canvas id="volumeChart" width="500" height="220"></canvas>
+                    <p class="small muted">Volume is estimated as sum of sets x reps x weight(lb) entered for logged exercises.</p>
+                    <div class="actions">
+                        <button id="exportBtn" class="secondary">Export Data JSON</button>
+                        <button id="importBtn" class="secondary">Import Data JSON</button>
+                        <input id="importFile" type="file" accept="application/json" style="display:none">
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:10px">
+                <h3>Exercise Library (well known sources)</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Exercise</th><th>Primary source</th><th>Video</th></tr></thead>
+                        <tbody id="libraryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <p class="footer-note">Built for your personal execution. Keep loads pain-free, progress slowly, and review every 2 weeks.</p>
+    </div>
+
+    <script>
+        const memStore = {};
+        function readKey(key, fallback) {
+            try {
+                const raw = window.localStorage.getItem(key);
+                if (raw === null || raw === undefined || raw === '') return fallback;
+                return JSON.parse(raw);
+            } catch (err) {
+                if (memStore[key] === undefined) return fallback;
+                return memStore[key];
+            }
+        }
+
+        function writeKey(key, value) {
+            memStore[key] = value;
+            try {
+                window.localStorage.setItem(key, JSON.stringify(value));
+                return true;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function showRuntimeStatus() {
+            const el = document.getElementById('runtimeStatus');
+            let storageOk = true;
+            try {
+                window.localStorage.setItem('__fitforge_test__', '1');
+                window.localStorage.removeItem('__fitforge_test__');
+            } catch (err) {
+                storageOk = false;
+            }
+            el.style.display = 'block';
+            if (storageOk) {
+                el.classList.remove('warn');
+                el.textContent = 'App is active. Tap any tab to continue.';
+            } else {
+                el.classList.add('warn');
+                el.textContent = 'App is active, but device storage is restricted in this viewer. Data will reset when page closes. For full save, open in Safari and Add to Home Screen.';
+            }
+        }
+
+        const workoutPlan = {
+            "Monday - Upper Push": {
+                focus: "Chest, front delts, triceps",
+                totalMin: 70,
+                block: "Strength-Hypertrophy",
+                exercises: [
+                    { name: "Barbell bench press", sets: 4, reps: "6-8", rest: "2-3 min", min: 15, link: "https://www.youtube.com/results?search_query=jeff+nippard+bench+press+technique" },
+                    { name: "Incline dumbbell press", sets: 3, reps: "8-10", rest: "90 sec", min: 10, link: "https://www.youtube.com/results?search_query=incline+dumbbell+press+form" },
+                    { name: "Seated dumbbell shoulder press", sets: 3, reps: "8-10", rest: "90 sec", min: 10, link: "https://www.youtube.com/results?search_query=shoulder+press+form+athlean+x" },
+                    { name: "Cable lateral raise", sets: 3, reps: "12-15", rest: "60 sec", min: 8, link: "https://www.youtube.com/results?search_query=cable+lateral+raise+form" },
+                    { name: "Rope triceps pushdown", sets: 3, reps: "10-12", rest: "60 sec", min: 8, link: "https://www.youtube.com/results?search_query=rope+triceps+pushdown+technique" },
+                    { name: "Dead bug + side plank", sets: 3, reps: "40 sec each", rest: "45 sec", min: 9, link: "https://www.youtube.com/results?search_query=dead+bug+side+plank+proper+form" }
+                ]
+            },
+            "Tuesday - Lower Strength": {
+                focus: "Quads, glutes, hamstrings",
+                totalMin: 75,
+                block: "Strength",
+                exercises: [
+                    { name: "Back squat", sets: 4, reps: "5-6", rest: "2-3 min", min: 18, link: "https://www.youtube.com/results?search_query=squat+university+back+squat+form" },
+                    { name: "Romanian deadlift", sets: 4, reps: "6-8", rest: "2 min", min: 14, link: "https://www.youtube.com/results?search_query=romanian+deadlift+proper+form" },
+                    { name: "Bulgarian split squat", sets: 3, reps: "8 each", rest: "90 sec", min: 10, link: "https://www.youtube.com/results?search_query=bulgarian+split+squat+technique" },
+                    { name: "Leg curl", sets: 3, reps: "10-12", rest: "75 sec", min: 8, link: "https://www.youtube.com/results?search_query=seated+leg+curl+form" },
+                    { name: "Standing calf raise", sets: 4, reps: "10-15", rest: "60 sec", min: 8, link: "https://www.youtube.com/results?search_query=standing+calf+raise+form" },
+                    { name: "Hip flexor + hamstring stretch", sets: 2, reps: "60 sec each", rest: "none", min: 6, link: "https://www.youtube.com/results?search_query=hip+flexor+hamstring+stretch+routine" }
+                ]
+            },
+            "Wednesday - Pull + Rear Delts": {
+                focus: "Back, biceps, posture",
+                totalMin: 68,
+                block: "Hypertrophy",
+                exercises: [
+                    { name: "Weighted pull-up or lat pulldown", sets: 4, reps: "6-10", rest: "2 min", min: 13, link: "https://www.youtube.com/results?search_query=lat+pulldown+proper+form" },
+                    { name: "Chest-supported row", sets: 4, reps: "8-10", rest: "90 sec", min: 12, link: "https://www.youtube.com/results?search_query=chest+supported+row+form" },
+                    { name: "One-arm cable row", sets: 3, reps: "10-12", rest: "75 sec", min: 8, link: "https://www.youtube.com/results?search_query=single+arm+cable+row+technique" },
+                    { name: "Face pulls", sets: 3, reps: "12-15", rest: "60 sec", min: 8, link: "https://www.youtube.com/results?search_query=face+pull+form+rotator+cuff" },
+                    { name: "Incline DB curl", sets: 3, reps: "10-12", rest: "60 sec", min: 8, link: "https://www.youtube.com/results?search_query=incline+dumbbell+curl+form" },
+                    { name: "Farmer carry", sets: 3, reps: "40 m", rest: "60 sec", min: 7, link: "https://www.youtube.com/results?search_query=farmer+carry+technique" }
+                ]
+            },
+            "Thursday - Conditioning + Core": {
+                focus: "Endurance and waist conditioning",
+                totalMin: 55,
+                block: "Conditioning",
+                exercises: [
+                    { name: "Zone 2 incline walk or bike", sets: 1, reps: "35 min", rest: "steady", min: 35, link: "https://www.youtube.com/results?search_query=zone+2+cardio+explained" },
+                    { name: "Pallof press", sets: 3, reps: "12 each", rest: "45 sec", min: 6, link: "https://www.youtube.com/results?search_query=pallof+press+proper+form" },
+                    { name: "Cable woodchop", sets: 3, reps: "10 each", rest: "45 sec", min: 6, link: "https://www.youtube.com/results?search_query=cable+woodchop+form" },
+                    { name: "Back extension", sets: 3, reps: "12", rest: "60 sec", min: 5, link: "https://www.youtube.com/results?search_query=back+extension+exercise+form" },
+                    { name: "Mobility flow", sets: 1, reps: "15 min", rest: "none", min: 15, link: "https://www.youtube.com/results?search_query=15+minute+mobility+flow" }
+                ]
+            },
+            "Friday - Full Body Hypertrophy": {
+                focus: "Metabolic stress and symmetry",
+                totalMin: 72,
+                block: "Hypertrophy",
+                exercises: [
+                    { name: "Front squat or leg press", sets: 4, reps: "8-10", rest: "2 min", min: 13, link: "https://www.youtube.com/results?search_query=front+squat+form" },
+                    { name: "Dumbbell bench press", sets: 4, reps: "8-10", rest: "90 sec", min: 12, link: "https://www.youtube.com/results?search_query=dumbbell+bench+press+form" },
+                    { name: "Romanian deadlift (lighter)", sets: 3, reps: "10", rest: "90 sec", min: 10, link: "https://www.youtube.com/results?search_query=romanian+deadlift+hypertrophy+form" },
+                    { name: "Machine row", sets: 3, reps: "10-12", rest: "75 sec", min: 8, link: "https://www.youtube.com/results?search_query=machine+row+form" },
+                    { name: "Lateral raise drop set", sets: 3, reps: "12 + 12", rest: "75 sec", min: 8, link: "https://www.youtube.com/results?search_query=lateral+raise+drop+set+form" },
+                    { name: "Cable crunch", sets: 4, reps: "12-15", rest: "45 sec", min: 8, link: "https://www.youtube.com/results?search_query=cable+crunch+form" }
+                ]
+            },
+            "Saturday - Yoga + Rehab + Optional Arms": {
+                focus: "Recovery, shoulder health, tissue quality",
+                totalMin: 45,
+                block: "Recovery",
+                exercises: [
+                    { name: "Yoga flow", sets: 1, reps: "25 min", rest: "none", min: 25, link: "https://www.youtube.com/results?search_query=beginner+vinyasa+yoga+25+minutes" },
+                    { name: "Band external rotation", sets: 3, reps: "15", rest: "45 sec", min: 5, link: "https://www.youtube.com/results?search_query=band+external+rotation+rotator+cuff" },
+                    { name: "Scapular push-up", sets: 3, reps: "10", rest: "45 sec", min: 4, link: "https://www.youtube.com/results?search_query=scapular+push+up+form" },
+                    { name: "Couch stretch + pigeon", sets: 2, reps: "60 sec each", rest: "none", min: 6, link: "https://www.youtube.com/results?search_query=couch+stretch+pigeon+pose" },
+                    { name: "Optional arm superset", sets: 3, reps: "12", rest: "60 sec", min: 5, link: "https://www.youtube.com/results?search_query=biceps+triceps+superset+form" }
+                ]
+            },
+            "Sunday - Rest + Walk": {
+                focus: "Recovery and stress control",
+                totalMin: 35,
+                block: "Recovery",
+                exercises: [
+                    { name: "Outdoor walk", sets: 1, reps: "35-45 min", rest: "steady", min: 35, link: "https://www.youtube.com/results?search_query=benefits+of+brisk+walking" },
+                    { name: "Breathing and light stretch", sets: 1, reps: "10 min", rest: "none", min: 10, link: "https://www.youtube.com/results?search_query=box+breathing+and+stretching" }
+                ]
+            }
+        };
+
+        const exerciseLibrary = [
+            ["Bench press", "Jeff Nippard", "https://www.youtube.com/results?search_query=jeff+nippard+bench+press"],
+            ["Back squat", "Squat University", "https://www.youtube.com/results?search_query=squat+university+back+squat"],
+            ["Romanian deadlift", "Renaissance Periodization", "https://www.youtube.com/results?search_query=renaissance+periodization+romanian+deadlift"],
+            ["Bulgarian split squat", "Squat University", "https://www.youtube.com/results?search_query=squat+university+bulgarian+split+squat"],
+            ["Lat pulldown", "ATHLEAN-X", "https://www.youtube.com/results?search_query=athlean+x+lat+pulldown"],
+            ["Face pull", "Jeff Cavaliere", "https://www.youtube.com/results?search_query=face+pull+jeff+cavaliere"],
+            ["Pallof press", "Mind Pump", "https://www.youtube.com/results?search_query=mind+pump+pallof+press"],
+            ["Dead bug", "E3 Rehab", "https://www.youtube.com/results?search_query=e3+rehab+dead+bug"],
+            ["Zone 2 cardio", "Peter Attia discussions", "https://www.youtube.com/results?search_query=zone+2+cardio+peter+attia"],
+            ["Yoga flow", "Yoga With Adriene", "https://www.youtube.com/results?search_query=yoga+with+adriene+full+body+flow"],
+            ["Rotator cuff rehab", "Bob and Brad", "https://www.youtube.com/results?search_query=bob+and+brad+rotator+cuff+exercises"],
+            ["Hip mobility", "The Prehab Guys", "https://www.youtube.com/results?search_query=prehab+guys+hip+mobility"]
+        ];
+
+        const days = Object.keys(workoutPlan);
+        const tabs = [...document.querySelectorAll('.tab')];
+        const panels = [...document.querySelectorAll('.panel')];
+
+        function activatePanel(panelName) {
+            tabs.forEach(t => t.classList.toggle('active', t.dataset.panel === panelName));
+            panels.forEach(p => p.classList.toggle('active', p.id === `panel-${panelName}`));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => activatePanel(tab.dataset.panel));
+        });
+
+        const dayPicker = document.getElementById('dayPicker');
+        days.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            dayPicker.appendChild(opt);
+        });
+
+        function getTodayPlanName() {
+            const dayMap = {
+                0: "Sunday - Rest + Walk",
+                1: "Monday - Upper Push",
+                2: "Tuesday - Lower Strength",
+                3: "Wednesday - Pull + Rear Delts",
+                4: "Thursday - Conditioning + Core",
+                5: "Friday - Full Body Hypertrophy",
+                6: "Saturday - Yoga + Rehab + Optional Arms"
+            };
+            return dayMap[new Date().getDay()];
+        }
+
+        let currentDay = getTodayPlanName();
+        dayPicker.value = currentDay;
+
+        function getLatestWeight(exerciseName) {
+            const logs = readKey('fitLogs', []);
+            for (let i = logs.length - 1; i >= 0; i--) {
+                const item = logs[i];
+                if (item.weights && item.weights[exerciseName]) {
+                    return item.weights[exerciseName];
+                }
+            }
+            return "";
+        }
+
+        function renderWorkout(dayName) {
+            const p = workoutPlan[dayName];
+            currentDay = dayName;
+            dayPicker.value = dayName;
+            const summary = document.getElementById('workoutSummary');
+            summary.innerHTML = `
+                <strong>${dayName}</strong><br>
+                <span class="muted">Focus: ${p.focus}</span><br>
+                <span class="timing">Estimated total time: ${p.totalMin} minutes</span>
+            `;
+
+            const list = document.getElementById('exerciseList');
+            list.innerHTML = '';
+
+            p.exercises.forEach((ex, idx) => {
+                const card = document.createElement('div');
+                card.className = 'exercise-item';
+                const last = getLatestWeight(ex.name);
+                card.innerHTML = `
+                    <div class="exercise-top">
+                        <div>
+                            <strong>${idx + 1}. ${ex.name}</strong>
+                            <div class="small muted">${ex.sets} sets x ${ex.reps}, rest ${ex.rest}</div>
+                            <div class="small timing">Approx time: ${ex.min} min</div>
+                            <div class="links small"><a href="${ex.link}" target="_blank" rel="noopener noreferrer">Technique video</a></div>
+                        </div>
+                    </div>
+                    <div class="exercise-controls">
+                        <input type="number" class="weight-input" data-name="${ex.name}" placeholder="Weight (lb)" value="${last}">
+                        <input type="number" class="reps-input" data-name="${ex.name}" placeholder="Reps done" value="${parseInt(ex.reps, 10) || ''}">
+                        <div class="small muted">Track your best working set. Use same form each week.</div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        renderWorkout(currentDay);
+
+        document.getElementById('loadDayBtn').addEventListener('click', () => renderWorkout(dayPicker.value));
+
+        document.getElementById('startTodayBtn').addEventListener('click', () => {
+            activatePanel('workout');
+            renderWorkout(getTodayPlanName());
+        });
+
+        document.getElementById('openDietBtn').addEventListener('click', () => activatePanel('diet'));
+
+        function renderHistory() {
+            const logs = readKey('fitLogs', []);
+            const body = document.querySelector('#historyTable tbody');
+            body.innerHTML = '';
+            logs.slice().reverse().forEach(l => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${l.date}</td>
+                    <td>${l.day}</td>
+                    <td>${l.totalMin} min</td>
+                    <td>${Math.round(l.volume)} lb-reps</td>
+                    <td>${l.notes || ''}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderMetrics() {
+            const metrics = readKey('fitMetrics', []);
+            const body = document.querySelector('#metricsTable tbody');
+            body.innerHTML = '';
+            metrics.slice().reverse().forEach(m => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${m.date}</td><td>${m.weight || ''}</td><td>${m.waist || ''}</td><td>${m.sleep || ''}</td>`;
+                body.appendChild(tr);
+            });
+        }
+
+        function drawVolumeChart() {
+            const logs = readKey('fitLogs', []).slice(-12);
+            const canvas = document.getElementById('volumeChart');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '12px Trebuchet MS';
+            ctx.fillText('Session Volume', 10, 18);
+
+            if (!logs.length) {
+                ctx.fillStyle = '#64748b';
+                ctx.fillText('No workout logs yet. Save sessions to see trend.', 10, 40);
+                return;
+            }
+
+            const values = logs.map(x => x.volume || 0);
+            const max = Math.max(...values, 1);
+            const left = 35;
+            const bottom = 190;
+            const w = 440;
+            const h = 140;
+
+            ctx.strokeStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.moveTo(left, 30);
+            ctx.lineTo(left, bottom);
+            ctx.lineTo(left + w, bottom);
+            ctx.stroke();
+
+            const step = values.length > 1 ? w / (values.length - 1) : w;
+            ctx.strokeStyle = '#1d5f4b';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            values.forEach((v, i) => {
+                const x = left + (i * step);
+                const y = bottom - ((v / max) * h);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            ctx.fillStyle = '#d97706';
+            values.forEach((v, i) => {
+                const x = left + (i * step);
+                const y = bottom - ((v / max) * h);
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        document.getElementById('saveWorkoutBtn').addEventListener('click', () => {
+            const plan = workoutPlan[currentDay];
+            const weights = {};
+            let volume = 0;
+
+            document.querySelectorAll('.weight-input').forEach(inp => {
+                const name = inp.dataset.name;
+                const w = parseFloat(inp.value || '0');
+                const repsInput = inp.parentElement.querySelector('.reps-input');
+                const repsDone = parseFloat((repsInput && repsInput.value) || '0');
+                if (w > 0) {
+                    weights[name] = w;
+                }
+                const ex = plan.exercises.find(e => e.name === name);
+                if (ex && w > 0 && repsDone > 0) {
+                    volume += (w * repsDone * ex.sets);
+                }
+            });
+
+            const logs = readKey('fitLogs', []);
+            logs.push({
+                date: new Date().toLocaleDateString(),
+                day: currentDay,
+                totalMin: plan.totalMin,
+                volume,
+                notes: document.getElementById('workoutNotes').value.trim(),
+                weights
+            });
+            writeKey('fitLogs', logs);
+            document.getElementById('workoutSavedMsg').textContent = 'Workout saved.';
+            renderHistory();
+            drawVolumeChart();
+        });
+
+        document.getElementById('clearWorkoutBtn').addEventListener('click', () => {
+            document.querySelectorAll('.weight-input, .reps-input').forEach(i => i.value = '');
+            document.getElementById('workoutNotes').value = '';
+        });
+
+        document.getElementById('saveMetricsBtn').addEventListener('click', () => {
+            const metrics = readKey('fitMetrics', []);
+            metrics.push({
+                date: new Date().toLocaleDateString(),
+                weight: parseFloat(document.getElementById('bwInput').value || '0') || '',
+                waist: parseFloat(document.getElementById('waistInput').value || '0') || '',
+                sleep: parseFloat(document.getElementById('sleepInput').value || '0') || ''
+            });
+            writeKey('fitMetrics', metrics);
+            document.getElementById('metricsSaved').textContent = 'Metrics saved.';
+            renderMetrics();
+        });
+
+        document.getElementById('saveChecklist').addEventListener('click', () => {
+            const payload = {
+                date: new Date().toLocaleDateString(),
+                hydration: document.getElementById('chkHydration').checked,
+                protein: document.getElementById('chkProtein').checked,
+                steps: document.getElementById('chkSteps').checked,
+                mobility: document.getElementById('chkMobility').checked,
+                hair: document.getElementById('chkHair').checked
+            };
+            writeKey('dailyChecklist', payload);
+            document.getElementById('checklistSaved').textContent = 'Checklist saved.';
+        });
+
+        function loadChecklist() {
+            const c = readKey('dailyChecklist', {});
+            if (!c.date || c.date !== new Date().toLocaleDateString()) return;
+            document.getElementById('chkHydration').checked = !!c.hydration;
+            document.getElementById('chkProtein').checked = !!c.protein;
+            document.getElementById('chkSteps').checked = !!c.steps;
+            document.getElementById('chkMobility').checked = !!c.mobility;
+            document.getElementById('chkHair').checked = !!c.hair;
+        }
+
+        function renderLibrary() {
+            const body = document.getElementById('libraryTable');
+            body.innerHTML = '';
+            exerciseLibrary.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td><a href="${row[2]}" target="_blank" rel="noopener noreferrer">Watch</a></td>`;
+                body.appendChild(tr);
+            });
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const data = {
+                fitLogs: readKey('fitLogs', []),
+                fitMetrics: readKey('fitMetrics', []),
+                dailyChecklist: readKey('dailyChecklist', {})
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'fitforge-data.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        document.getElementById('importBtn').addEventListener('click', () => {
+            document.getElementById('importFile').click();
+        });
+
+        document.getElementById('importFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const data = JSON.parse(reader.result);
+                    if (data.fitLogs) writeKey('fitLogs', data.fitLogs);
+                    if (data.fitMetrics) writeKey('fitMetrics', data.fitMetrics);
+                    if (data.dailyChecklist) writeKey('dailyChecklist', data.dailyChecklist);
+                    renderHistory();
+                    renderMetrics();
+                    drawVolumeChart();
+                    loadChecklist();
+                    document.getElementById('workoutSavedMsg').textContent = 'Data imported.';
+                } catch (err) {
+                    document.getElementById('workoutSavedMsg').textContent = 'Import failed. Invalid JSON.';
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        showRuntimeStatus();
+        loadChecklist();
+        renderHistory();
+        renderMetrics();
+        drawVolumeChart();
+        renderLibrary();
+    </script>
+</body>
+</html>
